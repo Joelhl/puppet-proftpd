@@ -8,11 +8,6 @@
 # Standard class parameters
 # Define the general class behaviour and customizations
 #
-# [*my_class*]
-#   Name of a custom class to autoload to manage module's customizations
-#   If defined, proftpd class will automatically "include $my_class"
-#   Can be defined also by the (top scope) variable $proftpd_myclass
-#
 # [*source*]
 #   Sets the content of source parameter for main configuration file
 #   If defined, proftpd main config file will have the param: source => $source
@@ -208,7 +203,19 @@
 #   Alessandro Franceschi <al@lab42.it/>
 #
 class proftpd (
-  $my_class            = params_lookup( 'my_class' ),
+  $server_admin,
+  $server_name,
+  $server_ident,
+  $server_user,
+  $server_group,
+  $sftp_port,
+  $sftp_host_rsa_key,
+  $max_nb_instances,
+  $max_login_attempts,
+  $tls_rsa_certicate_file,
+  $tls_rsa_certicate_key_file,
+  $ftp_users_file,
+  $host_rsa_key_source,
   $source              = params_lookup( 'source' ),
   $source_dir          = params_lookup( 'source_dir' ),
   $source_dir_purge    = params_lookup( 'source_dir_purge' ),
@@ -327,44 +334,91 @@ class proftpd (
     default   => $proftpd::source,
   }
 
+  $variables = {
+    server_name                => $server_name,
+    server_ident               => $server_ident,
+    server_admin               => $server_admin,
+    server_user                => $server_user,
+    server_group               => $server_group,
+    sftp_port                  => $sftp_port,
+    sftp_host_rsa_key          => $sftp_host_rsa_key,
+    max_nb_instances           => $max_nb_instances,
+    max_login_attempts         => $max_login_attempts,
+    tls_rsa_certicate_file     => $tls_rsa_certicate_file,
+    tls_rsa_certicate_key_file => $tls_rsa_certicate_key_file,
+  }
+
   $manage_file_content = $proftpd::template ? {
     ''        => undef,
-    default   => template($proftpd::template),
+    default   => epp($proftpd::template, $variables),
   }
 
   ### Managed resources
-  package { 'proftpd':
-    ensure => $proftpd::manage_package,
-    name   => $proftpd::package,
-  }
-
-  $variables = {
-    server_name                 => 'ProFTPD server',
-    server_ident                => 'FTP Server ready.',
-    server_admin                => 'root@localhost',
-    server_user                 => 'root',
-    server_group                => 'root',
-    max_instances               => 20,
-    tls_rsa_certicate_file      => '/etc/dap-certs/proftpd/certs/dapftpsdb01.dap.pem', #change to variable of class
-    tls_rsa_certicate_key_file  => '/etc/dap-certs/proftpd/private_keys/dapftpsdb01.dap.pem', #change to variable of class
-  }
 
   user { $proftpd::process_user:
     ensure => present,
   }
 
   proftpd::puppet_ssl_certs { 'proftpd':
-    owner          => 'root',
+    owner => 'root',
   }
 
   file { '/etc/proftpd_host_rsa_key':
     ensure    => file,
-    owner     => 'root',
-    group     => 'root',
-    source    => 'file:///etc/ssh/ssh_host_rsa_key',
+    owner     => $proftpd::process_user,
+    group     => $proftpd::process_user,
+    source    => $host_rsa_key_source, #Variabele maken?
     mode      => '0600',
     show_diff => false,
     require   => User[$proftpd::process_user],
+  }
+
+  file { 'proftpd.dir':
+    ensure  => directory,
+    path    => $proftpd::config_dir,
+    notify  => $proftpd::manage_service_autorestart,
+    recurse => true,
+    purge   => $proftpd::bool_source_dir_purge,
+    replace => $proftpd::manage_file_replace,
+    audit   => $proftpd::manage_audit,
+    require => Package['proftpd'],
+  }
+
+  file { 'proftpd.conf':
+    ensure  => $proftpd::manage_file,
+    path    => $proftpd::config_file,
+    mode    => $proftpd::config_file_mode,
+    owner   => $proftpd::config_file_owner,
+    group   => $proftpd::config_file_group,
+    notify  => $proftpd::manage_service_autorestart,
+    source  => $proftpd::manage_file_source,
+    content => $proftpd::manage_file_content,
+    replace => $proftpd::manage_file_replace,
+    audit   => $proftpd::manage_audit,
+    require => Package['proftpd'],
+  }
+
+  file_line { 'enable_tls':
+    ensure             => present,
+    path               => '/etc/sysconfig/proftpd',
+    line               => 'PROFTPD_OPTIONS="-DTLS"',
+    match              => '^PROFTPD_OPTIONS=""$',
+    append_on_no_match => false,
+    require            => Package['proftpd'],
+  }
+
+  file_line { 'change_sftp_user_usage':
+    ensure             => present,
+    path               => '/etc/pam.d/proftpd',
+    line               => "auth       required     pam_listfile.so item=user sense=allow file=${ftp_users_file} onerr=fail",
+    match              => '^auth       required     pam_listfile.so item=user',
+    append_on_no_match => false,
+    require            => Package['proftpd'],
+  }
+
+  package { 'proftpd':
+    ensure => $proftpd::manage_package,
+    name   => $proftpd::package,
   }
 
   service { 'proftpd':
@@ -374,45 +428,9 @@ class proftpd (
     hasstatus  => $proftpd::service_status,
     pattern    => $proftpd::process,
     hasrestart => $proftpd::service_restart,
-    require    => [Package['proftpd'], File['/etc/proftpd_host_rsa_key'], User[$proftpd::process_user]],
+    subscribe  => [File['/etc/proftpd_host_rsa_key'], File['proftpd.conf'],
+                    File_line['enable_tls'], File_line['change_sftp_user_usage']],
   }
-
-  file { 'proftpd.conf':
-    ensure  => $proftpd::manage_file,
-    path    => $proftpd::config_file,
-    mode    => $proftpd::config_file_mode,
-    owner   => $proftpd::config_file_owner,
-    group   => $proftpd::config_file_group,
-    require => Package['proftpd'],
-    notify  => $proftpd::manage_service_autorestart,
-    source  => $proftpd::manage_file_source,
-    content => $proftpd::manage_file_content,
-    replace => $proftpd::manage_file_replace,
-    audit   => $proftpd::manage_audit,
-  }
-
-  # TODO: currently for testing purposes only
-  package { 'ftp.x86_64':
-    ensure => present,
-  }
-
-  # The whole proftpd configuration directory can be recursively overriden
-  # file { 'proftpd.dir':
-  #   ensure  => directory,
-  #   path    => $proftpd::config_dir,
-  #   require => Package['proftpd'],
-  #   notify  => $proftpd::manage_service_autorestart,
-  #   recurse => true,
-  #   purge   => $proftpd::bool_source_dir_purge,
-  #   replace => $proftpd::manage_file_replace,
-  #   audit   => $proftpd::manage_audit,
-  # }
-
-  ## Include custom class if $my_class is set
-  # if $proftpd::my_class {
-  #   include $proftpd::my_class
-  # }
-
 
   ### Provide puppi data, if enabled ( puppi => true )
   if $proftpd::bool_puppi == true {

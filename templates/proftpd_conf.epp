@@ -9,9 +9,9 @@
 # Server Config - config used for anything outside a <VirtualHost> or <Global> context
 # See: http://www.proftpd.org/docs/howto/Vhost.html
 
-ServerName		<% "\"${server_name}\"" %>
-ServerIdent		on <% "\"${server_ident}\"" %>
-ServerAdmin		<% $server_admin %>
+ServerName		<%= "\"${server_name}\"" %>
+ServerIdent		on <%= "\"${server_ident}\"" %>
+ServerAdmin		<%= $server_admin %>
 DefaultServer	on
 
 # Cause every FTP user except adm to be chrooted into their home directory
@@ -29,8 +29,8 @@ AuthOrder			mod_auth_pam.c* mod_auth_unix.c
 UseReverseDNS off
 
 # Set the user and group that the server runs as
-User  <% $server_user %>
-Group	<% $server_group %>
+User  <%= $server_user %>
+Group	<%= $server_group %>
 
 # Disable IPv6
 UseIPv6   off
@@ -41,7 +41,7 @@ UseIPv6   off
 # in standalone mode; in inetd mode you should use an inetd server
 # that allows you to limit maximum number of processes per service
 # (such as xinetd)
-MaxInstances  <% $max_nb_instances %>
+MaxInstances  <%= $max_nb_instances %>
 
 # Disable sendfile by default since it breaks displaying the download speeds in
 # ftptop and ftpwho
@@ -185,8 +185,8 @@ LoadModule mod_sftp.c
   <VirtualHost 0.0.0.0>
     TLSEngine	  on
     TLSRequired	on
-    TLSRSACertificateFile		  <% $tls_rsa_certicate_file %>
-    TLSRSACertificateKeyFile  <% $tls_rsa_certicate_key_file %>
+    TLSRSACertificateFile		  <%= $tls_rsa_certicate_file %>
+    TLSRSACertificateKeyFile  <%= $tls_rsa_certicate_key_file %>
     TLSCipherSuite  ALL:!ADH:!DES
     TLSOptions			NoCertRequest
     TLSVerifyClient	off
@@ -224,8 +224,11 @@ LoadModule mod_sftp.c
 
   # Umask 022 is a good standard umask to prevent new dirs and files
   # from being group and world writable
-  Umask	      022
+  Umask 022
+
   CreateHome  on 700 dirmode 711
+
+  UseFtpUsers off
 
   # Allow users to overwrite files and change permissions
   AllowOverwrite		yes
@@ -291,11 +294,12 @@ LoadModule mod_sftp.c
 </IfDefine>
 
 <IfModule mod_sftp.c>
+  <VirtualHost 0.0.0.0>
     SFTPEngine  on
     SFTPLog     /var/log/proftpd/sftp.log
 
     # Configure the server to listen on the normal SSH2 port, port 22
-    Port <% $sftp_port %>
+    Port <%= $sftp_port %>
 
     # Default Values
     # channelPacketSize 32KB channelWindowSize 4GB sftpProtocolVersion 1-6
@@ -318,7 +322,7 @@ LoadModule mod_sftp.c
     #
 
     # Configure both the RSA and DSA host keys
-    SFTPHostKey <% $sftp_host_rsa_key %>
+    SFTPHostKey <%= $sftp_host_rsa_key %>
 
     # Configure the file used for comparing authorized public keys of users.
     SFTPAuthorizedUserKeys file:~/.sftp/authorized_keys
@@ -332,7 +336,7 @@ LoadModule mod_sftp.c
     # for your SSH2/SFTP instance to be higher than the normal
     # MaxLoginAttempts value for FTP, as there are more ways to authenticate
     # using SSH2.
-    MaxLoginAttempts <% $max_login_attempts %>
+    MaxLoginAttempts <%= $max_login_attempts %>
 
     AuthPAMConfig	proftpd
     AuthOrder			mod_auth_pam.c* mod_auth_unix.c
@@ -347,5 +351,5 @@ LoadModule mod_sftp.c
     HiddenStores On
 
     CreateHome on 700 dirmode 711
-
+  </VirtualHost 0.0.0.0>
 </IfModule>

@@ -89,11 +89,10 @@ class proftpd::params {
   $protocol = 'tcp'
 
   # General Settings
-  $my_class = ''
   $source = ''
   $source_dir = ''
   $source_dir_purge = false
-  $template = ''
+  $template = 'templates/proftpd_conf.epp'
   $options = ''
   $service_autorestart = true
   $version = 'present'
