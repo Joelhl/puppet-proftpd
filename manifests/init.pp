@@ -203,19 +203,19 @@
 #   Alessandro Franceschi <al@lab42.it/>
 #
 class proftpd (
-  $server_admin,
-  $server_name,
-  $server_ident,
-  $server_user,
-  $server_group,
-  $sftp_port,
-  $sftp_host_rsa_key,
-  $max_nb_instances,
-  $max_login_attempts,
-  $tls_rsa_certicate_file,
-  $tls_rsa_certicate_key_file,
   $ftp_users_file,
   $host_rsa_key_source,
+  $max_login_attempts,
+  $max_nb_instances,
+  $server_admin,
+  $server_group,
+  $server_ident,
+  $server_name,
+  $server_user,
+  $sftp_host_rsa_key,
+  $sftp_port,
+  $tls_rsa_certicate_file,
+  $tls_rsa_certicate_key_file,
   $source              = params_lookup( 'source' ),
   $source_dir          = params_lookup( 'source_dir' ),
   $source_dir_purge    = params_lookup( 'source_dir_purge' ),
@@ -355,13 +355,9 @@ class proftpd (
 
   ### Managed resources
 
-  user { $proftpd::process_user:
-    ensure => present,
-  }
-
-  proftpd::puppet_ssl_certs { 'proftpd':
-    owner => 'root',
-  }
+  # user { $proftpd::process_user:
+  #   ensure => present,
+  # }
 
   file { '/etc/proftpd_host_rsa_key':
     ensure    => file,
@@ -370,7 +366,6 @@ class proftpd (
     source    => $host_rsa_key_source, #Variabele maken?
     mode      => '0600',
     show_diff => false,
-    require   => User[$proftpd::process_user],
   }
 
   file { 'proftpd.dir':
@@ -398,24 +393,6 @@ class proftpd (
     require => Package['proftpd'],
   }
 
-  file_line { 'enable_tls':
-    ensure             => present,
-    path               => '/etc/sysconfig/proftpd',
-    line               => 'PROFTPD_OPTIONS="-DTLS"',
-    match              => '^PROFTPD_OPTIONS=""$',
-    append_on_no_match => false,
-    require            => Package['proftpd'],
-  }
-
-  file_line { 'change_sftp_user_usage':
-    ensure             => present,
-    path               => '/etc/pam.d/proftpd',
-    line               => "auth       required     pam_listfile.so item=user sense=allow file=${ftp_users_file} onerr=fail",
-    match              => '^auth       required     pam_listfile.so item=user',
-    append_on_no_match => false,
-    require            => Package['proftpd'],
-  }
-
   package { 'proftpd':
     ensure => $proftpd::manage_package,
     name   => $proftpd::package,
@@ -428,8 +405,7 @@ class proftpd (
     hasstatus  => $proftpd::service_status,
     pattern    => $proftpd::process,
     hasrestart => $proftpd::service_restart,
-    subscribe  => [File['/etc/proftpd_host_rsa_key'], File['proftpd.conf'],
-                    File_line['enable_tls'], File_line['change_sftp_user_usage']],
+    subscribe  => [File['/etc/proftpd_host_rsa_key'], File['proftpd.conf']],
   }
 
   ### Provide puppi data, if enabled ( puppi => true )
