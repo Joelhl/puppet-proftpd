@@ -226,8 +226,6 @@ LoadModule mod_sftp.c
   # from being group and world writable
   Umask 022
 
-  CreateHome  on 700 dirmode 711
-
   UseFtpUsers off
 
   # Allow users to overwrite files and change permissions
@@ -350,6 +348,5 @@ LoadModule mod_sftp.c
     # Hide files being uploaded
     HiddenStores On
 
-    CreateHome on 700 dirmode 711
   </VirtualHost 0.0.0.0>
 </IfModule>
