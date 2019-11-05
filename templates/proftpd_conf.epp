@@ -14,16 +14,9 @@ ServerIdent		on <%= "\"${server_ident}\"" %>
 ServerAdmin		<%= $server_admin %>
 DefaultServer	on
 
-# Cause every FTP user except adm to be chrooted into their home directory
-# Aliasing /etc/security/pam_env.conf into the chroot allows pam_env to
-# work at session-end time (http://bugzilla.redhat.com/477120)
-DefaultRoot ~ !adm
-
 # Use pam to authenticate (default) and be authoritative
 AuthPAMConfig	proftpd
 AuthOrder			mod_auth_pam.c* mod_auth_unix.c
-# If you use NIS/YP/LDAP you may need to disable PersistentPasswd
-#PersistentPasswd		off
 
 # Don't do reverse DNS lookups (hangs on DNS problems)
 UseReverseDNS off
@@ -51,9 +44,14 @@ UseSendfile	  off
 LogFormat	  default	"%h %l %u %t \"%r\" %s %b"
 LogFormat		auth	"%v [%P] %h %t \"%r\" %s"
 
+SyslogLevel debug
+DebugLevel 10
+
 # Disable regular FTP
 Port 0
-SocketBindTight on
+<Limit LOGIN>
+  DenyAll
+</Limit>
 
 # Dynamic Shared Object (DSO) loading
 # See README.DSO and howto/DSO.html for more details
@@ -183,14 +181,21 @@ LoadModule mod_sftp.c
 # TLS (http://www.castaglia.org/proftpd/modules/mod_tls.html)
 <IfDefine TLS>
   <VirtualHost 0.0.0.0>
-    TLSEngine	  on
-    TLSRequired	on
+    <Limit LOGIN>
+      AllowAll
+    </Limit>
+
+    TLSEngine on
+    TLSRequired on
     TLSRSACertificateFile		  <%= $tls_rsa_certicate_file %>
     TLSRSACertificateKeyFile  <%= $tls_rsa_certicate_key_file %>
     TLSCipherSuite  ALL:!ADH:!DES
-    TLSOptions			NoCertRequest
-    TLSVerifyClient	off
-    TLSLog  /var/log/proftpd/tls.log
+    TLSProtocol SSLv23
+    TLSVerifyClient off
+    TLSLog /var/log/proftpd/tls.log
+    AuthPAMConfig proftpd
+    AuthOrder mod_auth_pam.c* mod_auth_unix.c
+
     <IfModule mod_tls_shmcache.c>
       TLSSessionCache shm:/file=/var/run/proftpd/sesscache
     </IfModule>
@@ -234,8 +239,15 @@ LoadModule mod_sftp.c
     AllowAll
   </Limit>
 
+  # Set the passive ports to a certain range
+  PassivePorts 40001 41001
+
+  # Cause every FTP user to be chrooted into their home directory
+  DefaultRoot ~
+
 </Global>
 
+# Highly discouraged to enable this!
 # A basic anonymous configuration, with an upload directory
 # Enable this with PROFTPD_OPTIONS=-DANONYMOUS_FTP in /etc/sysconfig/proftpd
 <IfDefine ANONYMOUS_FTP>
@@ -293,6 +305,10 @@ LoadModule mod_sftp.c
 
 <IfModule mod_sftp.c>
   <VirtualHost 0.0.0.0>
+    <Limit LOGIN>
+      AllowAll
+    </Limit>
+
     SFTPEngine  on
     SFTPLog     /var/log/proftpd/sftp.log
 
@@ -339,10 +355,7 @@ LoadModule mod_sftp.c
     AuthPAMConfig	proftpd
     AuthOrder			mod_auth_pam.c* mod_auth_unix.c
 
-    # Force chroot to homedir
-    DefaultRoot ~
-
-    # Set correc timezone
+    # Set correct timezone
     TimesGMT off
 
     # Hide files being uploaded
