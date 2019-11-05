@@ -204,6 +204,8 @@
 #
 class proftpd (
   $ftp_users_file,
+  $ftps_passive_ports_range_start,
+  $ftps_passive_ports_range_end,
   $host_rsa_key_source,
   $max_login_attempts,
   $max_nb_instances,
@@ -335,17 +337,19 @@ class proftpd (
   }
 
   $variables = {
-    server_name                => $server_name,
-    server_ident               => $server_ident,
-    server_admin               => $server_admin,
-    server_user                => $server_user,
-    server_group               => $server_group,
-    sftp_port                  => $sftp_port,
-    sftp_host_rsa_key          => $sftp_host_rsa_key,
-    max_nb_instances           => $max_nb_instances,
-    max_login_attempts         => $max_login_attempts,
-    tls_rsa_certicate_file     => $tls_rsa_certicate_file,
-    tls_rsa_certicate_key_file => $tls_rsa_certicate_key_file,
+    ftps_passive_ports_range_start => $ftps_passive_ports_range_start,
+    ftps_passive_ports_range_end   => $ftps_passive_ports_range_end,
+    max_login_attempts             => $max_login_attempts,
+    max_nb_instances               => $max_nb_instances,
+    server_admin                   => $server_admin,
+    server_group                   => $server_group,
+    server_ident                   => $server_ident,
+    server_name                    => $server_name,
+    server_user                    => $server_user,
+    sftp_port                      => $sftp_port,
+    sftp_host_rsa_key              => $sftp_host_rsa_key,
+    tls_rsa_certicate_file         => $tls_rsa_certicate_file,
+    tls_rsa_certicate_key_file     => $tls_rsa_certicate_key_file,
   }
 
   $manage_file_content = $proftpd::template ? {

@@ -240,7 +240,7 @@ LoadModule mod_sftp.c
   </Limit>
 
   # Set the passive ports to a certain range
-  PassivePorts 40001 41001
+  PassivePorts <%= $ftps_passive_ports_range_start %> <%= $ftps_passive_ports_range_end %>
 
   # Cause every FTP user to be chrooted into their home directory
   DefaultRoot ~
