@@ -187,8 +187,8 @@ LoadModule mod_sftp.c
 
     TLSEngine on
     TLSRequired on
-    TLSRSACertificateFile		  <%= $tls_rsa_certicate_file %>
-    TLSRSACertificateKeyFile  <%= $tls_rsa_certicate_key_file %>
+    TLSRSACertificateFile		  <%= $tls_rsa_certificate_file %>
+    TLSRSACertificateKeyFile  <%= $tls_rsa_certificate_key_file %>
     TLSCipherSuite  ALL:!ADH:!DES
     TLSProtocol SSLv23
     TLSVerifyClient off
