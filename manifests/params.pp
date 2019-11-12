@@ -49,7 +49,7 @@ class proftpd::params {
   }
 
   $config_file = $::operatingsystem ? {
-    default => '/etc/proftpd/proftpd.conf',
+    default => '/etc/proftpd.conf',
   }
 
   $config_file_mode = $::operatingsystem ? {
@@ -92,7 +92,7 @@ class proftpd::params {
   $source = ''
   $source_dir = ''
   $source_dir_purge = false
-  $template = 'templates/proftpd_conf.epp'
+  $template = 'proftpd/proftpd_conf.epp'
   $options = ''
   $service_autorestart = true
   $version = 'present'
