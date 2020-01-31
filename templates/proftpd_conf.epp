@@ -189,6 +189,7 @@ LoadModule mod_sftp.c
     TLSRequired on
     TLSRSACertificateFile		  <%= $tls_rsa_certificate_file %>
     TLSRSACertificateKeyFile  <%= $tls_rsa_certificate_key_file %>
+    TLSOptions NoSessionReuseRequired
     TLSCipherSuite  ALL:!ADH:!DES
     TLSProtocol SSLv23
     TLSVerifyClient off
