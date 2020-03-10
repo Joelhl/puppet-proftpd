@@ -41,8 +41,7 @@ MaxInstances  <%= $max_nb_instances %>
 UseSendfile	  off
 
 # Define the log formats
-LogFormat	  default	"%h %l %u %t \"%r\" %s %b"
-LogFormat		auth	"%v [%P] %h %t \"%r\" %s"
+LogFormat       audit   "%t [%P] %{protocol} %h %l %u \"%r\" %f %s %b %T"
 
 SyslogLevel debug
 DebugLevel 10
@@ -196,6 +195,7 @@ LoadModule mod_sftp.c
     TLSLog /var/log/proftpd/tls.log
     AuthPAMConfig proftpd
     AuthOrder mod_auth_pam.c* mod_auth_unix.c
+    ExtendedLog /var/log/proftpd/audit.log WRITE,READ audit
 
     <IfModule mod_tls_shmcache.c>
       TLSSessionCache shm:/file=/var/run/proftpd/sesscache
@@ -312,6 +312,7 @@ LoadModule mod_sftp.c
 
     SFTPEngine  on
     SFTPLog     /var/log/proftpd/sftp.log
+    ExtendedLog /var/log/proftpd/audit.log WRITE,READ audit
 
     # Configure the server to listen on the normal SSH2 port, port 22
     Port <%= $sftp_port %>
