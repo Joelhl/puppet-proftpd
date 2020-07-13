@@ -218,6 +218,7 @@ class proftpd (
   $sftp_port,
   $tls_rsa_certificate_file,
   $tls_rsa_certificate_key_file,
+  $ftps_listen_address,
   $source              = params_lookup( 'source' ),
   $source_dir          = params_lookup( 'source_dir' ),
   $source_dir_purge    = params_lookup( 'source_dir_purge' ),
@@ -349,6 +350,7 @@ class proftpd (
     sftp_port                      => $sftp_port,
     sftp_host_rsa_key              => $sftp_host_rsa_key,
     tls_rsa_certificate_file       => $tls_rsa_certificate_file,
+    ftps_listen_address            => $ftps_listen_address,
     tls_rsa_certificate_key_file   => $tls_rsa_certificate_key_file,
   }
 
