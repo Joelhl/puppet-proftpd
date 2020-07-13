@@ -352,7 +352,7 @@ class proftpd (
     sftp_host_rsa_key              => $sftp_host_rsa_key,
     tls_rsa_certificate_file       => $tls_rsa_certificate_file,
     ftps_port                      => $ftps_port,
-    ftps_listen_address            => $ftps_allowed_addresses,
+    ftps_allowed_addresses         => $ftps_allowed_addresses,
     tls_rsa_certificate_key_file   => $tls_rsa_certificate_key_file,
   }
 
