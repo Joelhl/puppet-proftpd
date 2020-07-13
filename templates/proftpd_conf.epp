@@ -179,9 +179,11 @@ LoadModule mod_sftp.c
 
 # TLS (http://www.castaglia.org/proftpd/modules/mod_tls.html)
 <IfDefine TLS>
-  <VirtualHost <%= $ftps_listen_address %>>
+  <VirtualHost 0.0.0.0 >
     <Limit LOGIN>
-      AllowAll
+      Allow from <%= $ftps_allowed_addresses %>
+
+      DenyAll
     </Limit>
 
     TLSEngine on
