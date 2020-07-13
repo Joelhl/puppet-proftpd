@@ -186,6 +186,7 @@ LoadModule mod_sftp.c
       DenyAll
     </Limit>
 
+    Port <%= $ftps_port %>
     TLSEngine on
     TLSRequired on
     TLSRSACertificateFile		  <%= $tls_rsa_certificate_file %>
