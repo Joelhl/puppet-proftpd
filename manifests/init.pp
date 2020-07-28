@@ -220,6 +220,8 @@ class proftpd (
   $tls_rsa_certificate_key_file,
   $ftps_allowed_addresses,
   $ftps_port,
+  $ftps_allow_store_restart = 'off',
+  $ftps_allow_retrieve_restart = 'off',
   $source              = params_lookup( 'source' ),
   $source_dir          = params_lookup( 'source_dir' ),
   $source_dir_purge    = params_lookup( 'source_dir_purge' ),
@@ -354,6 +356,8 @@ class proftpd (
     ftps_port                      => $ftps_port,
     ftps_allowed_addresses         => $ftps_allowed_addresses,
     tls_rsa_certificate_key_file   => $tls_rsa_certificate_key_file,
+    ftps_allow_store_restart       => $ftps_allow_store_restart,
+    ftps_allow_retrieve_restart    => $ftps_allow_retrieve_restart,
   }
 
   $manage_file_content = $proftpd::template ? {
