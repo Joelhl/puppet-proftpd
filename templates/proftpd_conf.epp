@@ -200,6 +200,9 @@ LoadModule mod_sftp.c
     AuthOrder mod_auth_pam.c* mod_auth_unix.c
     ExtendedLog /var/log/proftpd/audit.log WRITE,READ audit
 
+    AllowStoreRestart <%= $ftps_allow_store_restart %>
+    AllowRetrieveRestart <%= $ftps_allow_retrieve_restart %>
+
     <IfModule mod_tls_shmcache.c>
       TLSSessionCache shm:/file=/var/run/proftpd/sesscache
     </IfModule>
