@@ -340,8 +340,6 @@ class proftpd (
     default   => $proftpd::source,
   }
 
-  notify { "ftps: ${ftps_allowed_addresses}":  }
-
   $variables = {
     ftps_passive_ports_range_start => $ftps_passive_ports_range_start,
     ftps_passive_ports_range_end   => $ftps_passive_ports_range_end,
