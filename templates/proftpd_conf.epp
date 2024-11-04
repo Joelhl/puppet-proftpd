@@ -369,5 +369,5 @@ LoadModule mod_sftp.c
     # Hide files being uploaded
     HiddenStores On
 
-  </VirtualHost 0.0.0.0>
+  </VirtualHost>
 </IfModule>
