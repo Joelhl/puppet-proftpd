@@ -206,7 +206,7 @@ LoadModule mod_sftp.c
     <IfModule mod_tls_shmcache.c>
       TLSSessionCache shm:/file=/var/run/proftpd/sesscache
     </IfModule>
-  </VirtualHost 0.0.0.0>
+  </VirtualHost>
 </IfDefine>
 
 # Dynamic ban lists (http://www.proftpd.org/docs/contrib/mod_ban.html)
