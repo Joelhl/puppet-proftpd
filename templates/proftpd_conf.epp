@@ -328,19 +328,19 @@ LoadModule mod_sftp.c
     #
     # General fixes from the mod_sftp forum
     SFTPClientMatch ".*WS_FTP.*" channelWindowSize 1GB    #WS_FTP initial window size
-    SFTPClientMatch ".*ClientSftp" sftpProtocolVersion 3  #CuteFTPPro8
-    SFTPClientMatch ".*WinSCP.*" sftpProtocolVersion 3    #upload/download fix for WinSCP
+    SFTPClientMatch ".*ClientSftp" sftpProtocolVersion 6  #CuteFTPPro8
+    SFTPClientMatch ".*WinSCP.*" sftpProtocolVersion 6    #upload/download fix for WinSCP
     SFTPClientMatch ".*XFB.Gateway Unix.*" channelWindowSize 1GB #connect fix for XFB gateway
     SFTPClientMatch ".*SharpSSH.*" channelWindowSize 256MB # SSH-2.0-SharpSSH-1.1.1.13-JSCH-0.1.28
     SFTPClientMatch "1.30" channelWindowSize 256MB channelPacketSize 16KB  # SSH-2.0-1.30
     #
     # SecureBlackbox (SSH-2.0-SecureBlackbox.7)
     # http://www.eldos.com/sbb/download-release.php
-    SFTPClientMatch ".*SecureBlackbox.*" sftpProtocolVersion 3
+    SFTPClientMatch ".*SecureBlackbox.*" sftpProtocolVersion 6
     #
     # GoAnywhere (SSH-2.0-1.0)
     # http://www.goanywheremft.com/products
-    SFTPClientMatch "1.0" sftpProtocolVersion 3 channelWindowSize 1GB
+    SFTPClientMatch "1.0" sftpProtocolVersion 6 channelWindowSize 1GB
     #
 
     # Configure both the RSA and DSA host keys
